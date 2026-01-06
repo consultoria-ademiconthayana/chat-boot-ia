@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Chatbot Ademicon | Widget</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family: Arial, sans-serif; }
+
+/* Widget flutuante */
+#chat-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 360px;
+  max-width: 95%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  overflow: hidden;
+  display: none;
+  z-index: 9999;
+}
+
+#open-chat {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #c00000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 26px;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+.chat-header {
+  background:#c00000;
+  color:#fff;
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.chat-body {
+  padding:15px;
+  height:360px;
+  overflow-y:auto;
+}
+
+.bot, .user {
+  padding:10px 14px;
+  border-radius:14px;
+  margin-bottom:10px;
+  max-width:80%;
+  font-size:14px;
+}
+
+.bot { background:#f1f1f1; color:#000; }
+.user { background:#c00000; color:#fff; margin-left:auto; }
+
+.buttons { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+
+button {
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#000;
+  color:#fff;
+  cursor:pointer;
+}
+
+button:hover { background:#c00000; }
+.whatsapp-btn { background:#25D366; }
+
+input, select {
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+</style>
+</head>
+
+<body>
+
+<button id="open-chat" onclick="toggleChat()">💬</button>
+
+<div id="chat-widget">
+  <div class="chat-header">🤖 Atendimento Ademicon</div>
+  <div class="chat-body" id="chat">
+    <div class="bot">
+      Olá! 👋 Posso simular seu crédito 😊
+      <div class="buttons">
+        <button onclick="simularImovel()">🏠 Imóvel</button>
+        <button onclick="simularVeiculo()">🚗 Veículo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const widget = document.getElementById("chat-widget");
+
+// TAXAS INTERNAS (OCULTAS)
+const TAXA_IMOVEL = 0.242;
+const TAXA_VEICULO = 0.16;
+
+function toggleChat() {
+  widget.style.display = widget.style.display === "none" ? "block" : "none";
+}
+
+function addBot(text) {
+  const d = document.createElement("div");
+  d.className = "bot";
+  d.innerHTML = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addUser(text) {
+  const d = document.createElement("div");
+  d.className = "user";
+  d.innerText = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function simularImovel() {
+  addUser("Simular Imóvel");
+  addBot(`
+    Informe o valor do crédito:
+    <input id="valorImovel" type="number" placeholder="Ex: 100000">
+    Escolha o prazo (meses):
+    <select id="prazoImovel">
+      <option value="220">220</option>
+      <option value="180">180</option>
+      <option value="150">150</option>
+    </select>
+    <div class="buttons">
+      <button onclick="calcularImovel()">Calcular</button>
+    </div>
+  `);
+}
+
+function calcularImovel() {
+  const valor = document.getElementById("valorImovel").value;
+  const prazo = document.getElementById("prazoImovel").value;
+  if (!valor) return;
+
+  const total = valor * (1 + TAXA_IMOVEL);
+  const parcela = total / prazo;
+
+  addBot(`
+    📊 <b>Simulação Imóvel</b><br>
+    Crédito: R$ ${Number(valor).toLocaleString('pt-BR')}<br>
+    Prazo: ${prazo} meses<br><br>
+    💰 <b>Parcela aproximada:</b><br>
+    R$ ${parcela.toFixed(2)}<br><br>
+    <button class="whatsapp-btn" onclick="whatsapp()">📲 Agendar no WhatsApp</button>
+  `);
+}
+
+function simularVeiculo() {
+  addUser("Simular Veículo");
+  addBot(`
+    Informe o valor do veículo:
+    <input id="valorVeiculo" type="number" placeholder="Ex: 60000">
+    Escolha o prazo (meses):
+    <select id="prazoVeiculo">
+      <option value="100">100</option>
+      <option value="80">80</option>
+      <option value="60">60</option>
+    </select>
+    <div class="buttons">
+      <button onclick="calcularVeiculo()">Calcular</button>
+    </div>
+  `);
+}
+
+function calcularVeiculo() {
+  const valor = document.getElementById("valorVeiculo").value;
+  const prazo = document.getElementById("prazoVeiculo").value;
+  if (!valor) return;
+
+  const total = valor * (1 + TAXA_VEICULO);
+  const parcela = total / prazo;
+
+  addBot(`
+    📊 <b>Simulação Veículo</b><br>
+    Crédito: R$ ${Number(valor).toLocaleString('pt-BR')}<br>
+    Prazo: ${prazo} meses<br><br>
+    💰 <b>Parcela aproximada:</b><br>
+    R$ ${parcela.toFixed(2)}<br><br>
+    <button class="whatsapp-btn" onclick="whatsapp()">📲 Agendar no WhatsApp</button>
+  `);
+}
+
+function whatsapp() {
+  window.open("https://wa.me/5581920023267", "_blank");
+}
+</script>
+
+</body>
+</html>
