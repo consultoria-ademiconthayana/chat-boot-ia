@@ -4,141 +4,90 @@
 <meta charset="UTF-8">
 <title>Chatbot Ademicon | Atendimento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; }
-.overlay {
-  position: fixed; inset:0;
-  background: rgba(0,0,0,0.6);
-  display:flex; align-items:center; justify-content:center;
-}
-#chat-widget {
-  width:360px; max-width:95%;
-  background:#fff; border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.4);
-  overflow:hidden;
-}
-.chat-header { background:#c00000; color:#fff; padding:15px; text-align:center; font-weight:bold; }
-.chat-body { padding:15px; height:360px; overflow-y:auto; }
-.bot,.user{ padding:10px 14px; border-radius:14px; margin-bottom:10px; max-width:80%; font-size:14px; }
-.bot{ background:#f1f1f1; color:#000; }
-.user{ background:#c00000; color:#fff; margin-left:auto; }
-.buttons{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
-button{ padding:10px; border:none; border-radius:10px; background:#000; color:#fff; cursor:pointer; }
-button:hover{ background:#c00000; }
-.whatsapp-btn{ background:#25D366; }
-input,select{ width:100%; padding:8px; margin-top:6px; border-radius:8px; border:1px solid #ccc; }
+body{font-family:Arial,sans-serif;margin:0;background:#f4f4f4}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
+#chat{width:360px;max-width:95%;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4);overflow:hidden}
+.header{background:#c00000;color:#fff;padding:15px;text-align:center;font-weight:bold}
+.body{padding:15px;height:380px;overflow-y:auto}
+.bot,.user{padding:10px 14px;border-radius:14px;margin-bottom:10px;max-width:80%;font-size:14px}
+.bot{background:#f1f1f1}
+.user{background:#c00000;color:#fff;margin-left:auto}
+.buttons{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+button{padding:10px;border:none;border-radius:10px;background:#000;color:#fff;cursor:pointer}
+button:hover{background:#c00000}
+input,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
+.whatsapp{background:#25D366}
 </style>
 </head>
-
 <body>
 <div class="overlay">
-  <div id="chat-widget">
-    <div class="chat-header">🤖 Atendimento Ademicon</div>
-    <div class="chat-body" id="chat">
-      <div class="bot">
-        Olá! 👋 Antes de simular, informe seus dados:
-        <div class="buttons">
-          <button onclick="pedirNome()">Continuar</button>
-        </div>
-      </div>
+<div id="chat">
+  <div class="header">🤖 Atendimento Ademicon</div>
+  <div class="body" id="msgs">
+    <div class="bot">
+      Olá! 😊 Vamos começar.<br>Qual seu nome?
+      <input id="nome">
+      <div class="buttons"><button onclick="saveName()">Continuar</button></div>
     </div>
   </div>
 </div>
+</div>
 
 <script>
-const chat = document.getElementById("chat");
-let leadNome = "", leadTelefone = "";
+const msgs=document.getElementById('msgs');
+let nome='',fone='';
+const TAXA_IMOVEL=0.242, TAXA_VEICULO=0.16;
 
-const TAXA_IMOVEL = 0.242;
-const TAXA_VEICULO = 0.16;
+const moeda=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const bot=t=>{let d=document.createElement('div');d.className='bot';d.innerHTML=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
+const user=t=>{let d=document.createElement('div');d.className='user';d.innerText=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
 
-function moedaBR(valor){
-  return valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+function saveName(){
+  nome=document.getElementById('nome').value;
+  if(!nome)return;
+  user(nome);
+  bot(`Qual seu WhatsApp?<input id="fone" placeholder="DDD + número"><div class="buttons"><button onclick="saveFone()">Continuar</button></div>`);
 }
-
-function addBot(text){
-  const d=document.createElement("div");
-  d.className="bot"; d.innerHTML=text;
-  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
+function saveFone(){
+  fone=document.getElementById('fone').value;
+  if(!fone)return;
+  user(fone);
+  bot(`O que deseja simular?<div class="buttons"><button onclick="imovel()">🏠 Imóvel</button><button onclick="veiculo()">🚗 Veículo</button></div>`);
 }
-function addUser(text){
-  const d=document.createElement("div");
-  d.className="user"; d.innerText=text;
-  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
+function normaliza(v){v=parseFloat(v);if(v<1000)v*=1000;return v}
+function imovel(){
+  user('Imóvel');
+  bot(`Valor do crédito (ex: 100 = 100 mil):
+  <input id="vi" type="number">
+  Prazo:
+  <select id="pi"><option value="220">220</option><option value="180">180</option><option value="150">150</option></select>
+  <div class="buttons"><button onclick="calcI()">Calcular</button></div>`);
 }
-
-function pedirNome(){
-  addBot(`Nome:
-    <input id="nome">
-    <div class="buttons"><button onclick="salvarNome()">Continuar</button></div>`);
+function calcI(){
+  let v=normaliza(document.getElementById('vi').value);
+  let p=parseInt(document.getElementById('pi').value);
+  let parcela=(v*(1+TAXA_IMOVEL))/p;
+  bot(`💰 Parcela aproximada:<br><b>${moeda(parcela)}</b><br><br>
+  <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
 }
-function salvarNome(){
-  const n=document.getElementById("nome").value;
-  if(!n) return;
-  leadNome=n; addUser(n);
-  addBot(`WhatsApp:
-    <input id="telefone" placeholder="DDD + número">
-    <div class="buttons"><button onclick="salvarTelefone()">Continuar</button></div>`);
+function veiculo(){
+  user('Veículo');
+  bot(`Valor do veículo (ex: 60 = 60 mil):
+  <input id="vv" type="number">
+  Prazo:
+  <select id="pv"><option value="100">100</option><option value="80">80</option><option value="60">60</option></select>
+  <div class="buttons"><button onclick="calcV()">Calcular</button></div>`);
 }
-function salvarTelefone(){
-  const t=document.getElementById("telefone").value;
-  if(!t) return;
-  leadTelefone=t; addUser(t);
-  menu();
+function calcV(){
+  let v=normaliza(document.getElementById('vv').value);
+  let p=parseInt(document.getElementById('pv').value);
+  let parcela=(v*(1+TAXA_VEICULO))/p;
+  bot(`💰 Parcela aproximada:<br><b>${moeda(parcela)}</b><br><br>
+  <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
 }
-function menu(){
-  addBot(`Olá <b>${leadNome}</b>, o que deseja simular?
-    <div class="buttons">
-      <button onclick="simularImovel()">🏠 Imóvel</button>
-      <button onclick="simularVeiculo()">🚗 Veículo</button>
-    </div>`);
-}
-
-function simularImovel(){
-  addUser("Simular Imóvel");
-  addBot(`Valor do crédito:
-    <input id="valorImovel" type="number" placeholder="Ex: 100000">
-    Prazo:
-    <select id="prazoImovel">
-      <option value="220">220</option>
-      <option value="180">180</option>
-      <option value="150">150</option>
-    </select>
-    <div class="buttons"><button onclick="calcImovel()">Calcular</button></div>`);
-}
-function calcImovel(){
-  const v=parseFloat(document.getElementById("valorImovel").value);
-  const p=parseInt(document.getElementById("prazoImovel").value);
-  if(!v||!p) return;
-  const parcela=(v*(1+TAXA_IMOVEL))/p;
-  addBot(`💰 <b>Parcela aproximada:</b><br><b>${moedaBR(parcela)}</b><br><br>
-    <button class="whatsapp-btn" onclick="whatsapp()">📲 Falar no WhatsApp</button>`);
-}
-
-function simularVeiculo(){
-  addUser("Simular Veículo");
-  addBot(`Valor do veículo:
-    <input id="valorVeiculo" type="number" placeholder="Ex: 60000">
-    Prazo:
-    <select id="prazoVeiculo">
-      <option value="100">100</option>
-      <option value="80">80</option>
-      <option value="60">60</option>
-    </select>
-    <div class="buttons"><button onclick="calcVeiculo()">Calcular</button></div>`);
-}
-function calcVeiculo(){
-  const v=parseFloat(document.getElementById("valorVeiculo").value);
-  const p=parseInt(document.getElementById("prazoVeiculo").value);
-  if(!v||!p) return;
-  const parcela=(v*(1+TAXA_VEICULO))/p;
-  addBot(`💰 <b>Parcela aproximada:</b><br><b>${moedaBR(parcela)}</b><br><br>
-    <button class="whatsapp-btn" onclick="whatsapp()">📲 Falar no WhatsApp</button>`);
-}
-
-function whatsapp(){
-  const msg=`Olá, sou ${leadNome}. Meu WhatsApp é ${leadTelefone}. Gostaria de mais detalhes.`;
+function zap(){
+  let msg=`Olá, meu nome é ${nome}. Meu WhatsApp é ${fone}. Gostaria de mais detalhes.`;
   window.open("https://wa.me/5581920023267?text="+encodeURIComponent(msg),"_blank");
 }
 </script>
