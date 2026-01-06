@@ -2,39 +2,38 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Chatbot Ademicon | Widget</title>
+<title>Chatbot Ademicon | Atendimento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { font-family: Arial, sans-serif; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f4f4;
+}
 
-/* Widget flutuante */
-#chat-widget {
+/* Overlay escuro */
+.overlay {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+}
+
+/* Chat central */
+#chat-widget {
   width: 360px;
   max-width: 95%;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,.4);
   overflow: hidden;
-  display: none;
-  z-index: 9999;
-}
-
-#open-chat {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #c00000;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 26px;
-  cursor: pointer;
   z-index: 9999;
 }
 
@@ -60,10 +59,23 @@ body { font-family: Arial, sans-serif; }
   font-size:14px;
 }
 
-.bot { background:#f1f1f1; color:#000; }
-.user { background:#c00000; color:#fff; margin-left:auto; }
+.bot {
+  background:#f1f1f1;
+  color:#000;
+}
 
-.buttons { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+.user {
+  background:#c00000;
+  color:#fff;
+  margin-left:auto;
+}
+
+.buttons {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
 
 button {
   padding:10px;
@@ -89,16 +101,16 @@ input, select {
 
 <body>
 
-<button id="open-chat" onclick="toggleChat()">💬</button>
-
-<div id="chat-widget">
-  <div class="chat-header">🤖 Atendimento Ademicon</div>
-  <div class="chat-body" id="chat">
-    <div class="bot">
-      Olá! 👋 Posso simular seu crédito 😊
-      <div class="buttons">
-        <button onclick="simularImovel()">🏠 Imóvel</button>
-        <button onclick="simularVeiculo()">🚗 Veículo</button>
+<div class="overlay">
+  <div id="chat-widget">
+    <div class="chat-header">🤖 Atendimento Ademicon</div>
+    <div class="chat-body" id="chat">
+      <div class="bot">
+        Olá! 👋 Posso simular seu crédito 😊
+        <div class="buttons">
+          <button onclick="simularImovel()">🏠 Imóvel</button>
+          <button onclick="simularVeiculo()">🚗 Veículo</button>
+        </div>
       </div>
     </div>
   </div>
@@ -106,15 +118,10 @@ input, select {
 
 <script>
 const chat = document.getElementById("chat");
-const widget = document.getElementById("chat-widget");
 
 // TAXAS INTERNAS (OCULTAS)
 const TAXA_IMOVEL = 0.242;
 const TAXA_VEICULO = 0.16;
-
-function toggleChat() {
-  widget.style.display = widget.style.display === "none" ? "block" : "none";
-}
 
 function addBot(text) {
   const d = document.createElement("div");
@@ -158,11 +165,11 @@ function calcularImovel() {
   const parcela = total / prazo;
 
   addBot(`
-    📊 <b>Simulação Imóvel</b><br>
-    Crédito: R$ ${Number(valor).toLocaleString('pt-BR')}<br>
-    Prazo: ${prazo} meses<br><br>
+    📊 <b>Simulação Imóvel</b><br><br>
+    Crédito: <b>R$ ${Number(valor).toLocaleString('pt-BR')}</b><br>
+    Prazo: <b>${prazo} meses</b><br><br>
     💰 <b>Parcela aproximada:</b><br>
-    R$ ${parcela.toFixed(2)}<br><br>
+    <b>R$ ${parcela.toFixed(2)}</b><br><br>
     <button class="whatsapp-btn" onclick="whatsapp()">📲 Agendar no WhatsApp</button>
   `);
 }
@@ -193,11 +200,11 @@ function calcularVeiculo() {
   const parcela = total / prazo;
 
   addBot(`
-    📊 <b>Simulação Veículo</b><br>
-    Crédito: R$ ${Number(valor).toLocaleString('pt-BR')}<br>
-    Prazo: ${prazo} meses<br><br>
+    📊 <b>Simulação Veículo</b><br><br>
+    Crédito: <b>R$ ${Number(valor).toLocaleString('pt-BR')}</b><br>
+    Prazo: <b>${prazo} meses</b><br><br>
     💰 <b>Parcela aproximada:</b><br>
-    R$ ${parcela.toFixed(2)}<br><br>
+    <b>R$ ${parcela.toFixed(2)}</b><br><br>
     <button class="whatsapp-btn" onclick="whatsapp()">📲 Agendar no WhatsApp</button>
   `);
 }
