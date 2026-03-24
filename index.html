@@ -87,9 +87,19 @@ function calcV(){
   <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
 }
 function zap(){
-  let msg=`Olá, meu nome é ${nome}. Meu WhatsApp é ${fone}. Gostaria de mais detalhes.`;
+  let msg=`Olá, meu nome é ${nome}.
+Meu WhatsApp: ${fone}
+
+Tenho interesse em consórcio de ${tipo}.
+
+💰 Valor do crédito: ${moeda(valor)}
+📊 Parcela estimada: ${moeda(parcelaFinal)}
+
+Gostaria de mais detalhes.`;
+
   window.open("https://wa.me/5581920023267?text="+encodeURIComponent(msg),"_blank");
 }
 </script>
+
 </body>
 </html>
