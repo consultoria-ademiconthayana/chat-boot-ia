@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Chatbot Ademicon | Atendimento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{font-family:Arial,sans-serif;margin:0;background:#f4f4f4}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
@@ -20,7 +21,9 @@ input,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px 
 .whatsapp{background:#25D366}
 </style>
 </head>
+
 <body>
+
 <div class="overlay">
 <div id="chat">
   <div class="header">🤖 Atendimento Ademicon</div>
@@ -28,7 +31,9 @@ input,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px 
     <div class="bot">
       Olá! 😊 Vamos começar.<br>Qual seu nome?
       <input id="nome">
-      <div class="buttons"><button onclick="saveName()">Continuar</button></div>
+      <div class="buttons">
+        <button onclick="saveName()">Continuar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -36,60 +41,141 @@ input,select{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px 
 
 <script>
 const msgs=document.getElementById('msgs');
-let nome='',fone='';
-const TAXA_IMOVEL=0.242, TAXA_VEICULO=0.16;
+
+let nome='',fone='',tipo='',valor=0,parcelaFinal=0;
+
+const TAXA_IMOVEL=0.242;
+const TAXA_VEICULO=0.16;
 
 const moeda=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const bot=t=>{let d=document.createElement('div');d.className='bot';d.innerHTML=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
-const user=t=>{let d=document.createElement('div');d.className='user';d.innerText=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
+
+function bot(t){
+  let d=document.createElement('div');
+  d.className='bot';
+  d.innerHTML=t;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function user(t){
+  let d=document.createElement('div');
+  d.className='user';
+  d.innerText=t;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
 
 function saveName(){
   nome=document.getElementById('nome').value;
   if(!nome)return;
   user(nome);
-  bot(`Qual seu WhatsApp?<input id="fone" placeholder="DDD + número"><div class="buttons"><button onclick="saveFone()">Continuar</button></div>`);
+
+  bot(`Qual seu WhatsApp?
+  <input id="fone" placeholder="DDD + número">
+  <div class="buttons">
+    <button onclick="saveFone()">Continuar</button>
+  </div>`);
 }
+
 function saveFone(){
   fone=document.getElementById('fone').value;
   if(!fone)return;
   user(fone);
-  bot(`O que deseja simular?<div class="buttons"><button onclick="imovel()">🏠 Imóvel</button><button onclick="veiculo()">🚗 Veículo</button></div>`);
+
+  bot(`O que deseja simular?
+  <div class="buttons">
+    <button onclick="imovel()">🏠 Imóvel</button>
+    <button onclick="veiculo()">🚗 Veículo</button>
+  </div>`);
 }
-function normaliza(v){v=parseFloat(v);if(v<1000)v*=1000;return v}
+
+function normaliza(v){
+  v=parseFloat(v);
+  if(v<1000)v*=1000;
+  return v;
+}
+
 function imovel(){
+  tipo="Imóvel";
   user('Imóvel');
+
   bot(`Valor do crédito (ex: 100 = 100 mil):
   <input id="vi" type="number">
   Prazo:
-  <select id="pi"><option value="220">220</option><option value="180">180</option><option value="150">150</option></select>
-  <div class="buttons"><button onclick="calcI()">Calcular</button></div>`);
+  <select id="pi">
+    <option value="220">220 meses</option>
+    <option value="180">180 meses</option>
+    <option value="150">150 meses</option>
+  </select>
+  <div class="buttons">
+    <button onclick="calcI()">Calcular</button>
+  </div>`);
 }
+
 function calcI(){
   let v=normaliza(document.getElementById('vi').value);
   let p=parseInt(document.getElementById('pi').value);
-  let parcela=(v*(1+TAXA_IMOVEL))/p;
-  bot(`💰 Parcela aproximada:<br><b>${moeda(parcela)}</b><br><br>
+
+  valor=v;
+  parcelaFinal=(v*(1+TAXA_IMOVEL))/p;
+
+  bot(`💰 Parcela aproximada:<br><b>${moeda(parcelaFinal)}</b><br><br>
   <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
 }
+
 function veiculo(){
+  tipo="Veículo";
   user('Veículo');
+
   bot(`Valor do veículo (ex: 60 = 60 mil):
   <input id="vv" type="number">
   Prazo:
-  <select id="pv"><option value="100">100</option><option value="80">80</option><option value="60">60</option></select>
-  <div class="buttons"><button onclick="calcV()">Calcular</button></div>`);
+  <select id="pv">
+    <option value="100">100 meses</option>
+    <option value="80">80 meses</option>
+    <option value="60">60 meses</option>
+  </select>
+  <div class="buttons">
+    <button onclick="calcV()">Calcular</button>
+  </div>`);
 }
+
 function calcV(){
   let v=normaliza(document.getElementById('vv').value);
   let p=parseInt(document.getElementById('pv').value);
-  let parcela=(v*(1+TAXA_VEICULO))/p;
-  bot(`💰 Parcela aproximada:<br><b>${moeda(parcela)}</b><br><br>
+
+  valor=v;
+  parcelaFinal=(v*(1+TAXA_VEICULO))/p;
+
+  bot(`💰 Parcela aproximada:<br><b>${moeda(parcelaFinal)}</b><br><br>
   <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
 }
+
 function zap(){
-  let msg=`Olá, meu nome é ${nome}. Meu WhatsApp é ${fone}. Gostaria de mais detalhes.`;
+
+  if(!tipo){
+    alert("Selecione o tipo de crédito!");
+    return;
+  }
+
+  if(!valor){
+    alert("Faça a simulação primeiro!");
+    return;
+  }
+
+  let msg = `Olá, meu nome é ${nome}.
+Meu WhatsApp: ${fone}
+
+Tenho interesse em consórcio de ${tipo}.
+
+💰 Valor do crédito: ${moeda(valor)}
+📊 Parcela estimada: ${moeda(parcelaFinal)}
+
+Gostaria de mais detalhes.`;
+
   window.open("https://wa.me/5581920023267?text="+encodeURIComponent(msg),"_blank");
 }
 </script>
+
 </body>
 </html>
