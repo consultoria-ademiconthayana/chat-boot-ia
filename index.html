@@ -1,24 +1,44 @@
 <script>
 const msgs=document.getElementById('msgs');
+
 let nome='',fone='',tipo='',valor=0,parcelaFinal=0;
 
-const TAXA_IMOVEL=0.242, TAXA_VEICULO=0.16;
+const TAXA_IMOVEL=0.242;
+const TAXA_VEICULO=0.16;
 
 const moeda=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const bot=t=>{let d=document.createElement('div');d.className='bot';d.innerHTML=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
-const user=t=>{let d=document.createElement('div');d.className='user';d.innerText=t;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
+
+function bot(t){
+  let d=document.createElement('div');
+  d.className='bot';
+  d.innerHTML=t;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function user(t){
+  let d=document.createElement('div');
+  d.className='user';
+  d.innerText=t;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
 
 function saveName(){
   nome=document.getElementById('nome').value;
   if(!nome)return;
   user(nome);
-  bot(`Qual seu WhatsApp?<input id="fone" placeholder="DDD + número"><div class="buttons"><button onclick="saveFone()">Continuar</button></div>`);
+
+  bot(`Qual seu WhatsApp?
+  <input id="fone">
+  <div class="buttons"><button onclick="saveFone()">Continuar</button></div>`);
 }
 
 function saveFone(){
   fone=document.getElementById('fone').value;
   if(!fone)return;
   user(fone);
+
   bot(`O que deseja simular?
   <div class="buttons">
     <button onclick="imovel()">🏠 Imóvel</button>
@@ -26,69 +46,76 @@ function saveFone(){
   </div>`);
 }
 
-function normaliza(v){v=parseFloat(v);if(v<1000)v*=1000;return v}
+function normaliza(v){
+  v=parseFloat(v);
+  if(v<1000)v*=1000;
+  return v;
+}
 
 function imovel(){
-  tipo = "Imóvel";
+  tipo="Imóvel";
   user('Imóvel');
-  bot(`Valor do crédito (ex: 100 = 100 mil):
+
+  bot(`Valor do crédito:
   <input id="vi" type="number">
   Prazo:
   <select id="pi">
     <option value="220">220</option>
     <option value="180">180</option>
-    <option value="150">150</option>
   </select>
-  <div class="buttons"><button onclick="calcI()">Calcular</button></div>`);
+  <button onclick="calcI()">Calcular</button>`);
 }
 
 function calcI(){
   let v=normaliza(document.getElementById('vi').value);
   let p=parseInt(document.getElementById('pi').value);
 
-  valor = v;
-  parcelaFinal = (v*(1+TAXA_IMOVEL))/p;
+  valor=v;
+  parcelaFinal=(v*(1+TAXA_IMOVEL))/p;
 
-  bot(`💰 Parcela aproximada:<br><b>${moeda(parcelaFinal)}</b><br><br>
-  <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
+  bot(`💰 ${moeda(parcelaFinal)}
+  <button class="whatsapp" onclick="zap()">WhatsApp</button>`);
 }
 
 function veiculo(){
-  tipo = "Veículo";
+  tipo="Veículo";
   user('Veículo');
-  bot(`Valor do veículo (ex: 60 = 60 mil):
+
+  bot(`Valor:
   <input id="vv" type="number">
   Prazo:
   <select id="pv">
     <option value="100">100</option>
-    <option value="80">80</option>
     <option value="60">60</option>
   </select>
-  <div class="buttons"><button onclick="calcV()">Calcular</button></div>`);
+  <button onclick="calcV()">Calcular</button>`);
 }
 
 function calcV(){
   let v=normaliza(document.getElementById('vv').value);
   let p=parseInt(document.getElementById('pv').value);
 
-  valor = v;
-  parcelaFinal = (v*(1+TAXA_VEICULO))/p;
+  valor=v;
+  parcelaFinal=(v*(1+TAXA_VEICULO))/p;
 
-  bot(`💰 Parcela aproximada:<br><b>${moeda(parcelaFinal)}</b><br><br>
-  <button class="whatsapp" onclick="zap()">📲 Falar no WhatsApp</button>`);
+  bot(`💰 ${moeda(parcelaFinal)}
+  <button class="whatsapp" onclick="zap()">WhatsApp</button>`);
 }
 
 function zap(){
-  let msg=`Olá, meu nome é ${nome}.
-Meu WhatsApp: ${fone}
 
-Tenho interesse em consórcio de ${tipo}.
+  if(!tipo){
+    alert("Selecione o tipo!");
+    return;
+  }
 
-💰 Valor do crédito: ${moeda(valor)}
-📊 Parcela estimada: ${moeda(parcelaFinal)}
+  let msg = `Olá, meu nome é ${nome}.
+WhatsApp: ${fone}
 
-Gostaria de mais detalhes.`;
+Interesse: ${tipo}
+Valor: ${moeda(valor)}
+Parcela: ${moeda(parcelaFinal)}`;
 
-  window.open("https://wa.me/5581920023267?text="+encodeURIComponent(msg),"_blank");
+  window.open("https://wa.me/5581920023267?text="+encodeURIComponent(msg));
 }
 </script>
